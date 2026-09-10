@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const url = 'mongodb+srv://thakur2924_db_user:Priyanshu2929@backend.gbb0xn1.mongodb.net/airbnb?appName=Backend';
+const url = process.env.MONGO_URI;
 
 const mongoConnect = () => {
     return mongoose.connect(url)
