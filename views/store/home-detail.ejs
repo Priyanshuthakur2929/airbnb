@@ -1,0 +1,62 @@
+<%- include('../partials/header')%>
+<%- include('../partials/navbar')%>
+<main class="container mx-auto mt-10 max-w-4xl px-4">
+    <h1 class="text-3xl font-bold text-red-500 text-center mb-6">
+        Details of <%= home.houseName %>
+    </h1>
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden p-6">
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="w-full h-64 md:h-80 rounded-xl overflow-hidden">
+                <img src="<%= home.imageURL %>" alt="<%= home.houseName %>"
+                     onerror="this.onerror=null; this.src='/default-home.jpg'"
+                     class="w-full h-full object-cover"/>
+            </div>
+            <div class="flex flex-col divide-y divide-gray-100">
+                <div class="pb-4">
+                    <h3 class="text-lg font-bold text-gray-900">Description</h3>
+                    <p class="text-gray-500 mt-1">
+                        <%= home.description %>
+                    </p>
+                </div>
+                <div class="py-4">
+                    <h3 class="text-lg font-bold text-gray-900">Location</h3>
+                    <p class="text-gray-500 mt-1"><%= home.location %></p>
+                </div>
+                <div class="py-4">
+                    <h3 class="text-lg font-bold text-gray-900">Price</h3>
+                    <p class="text-green-600 font-semibold mt-1">
+              $<%= home.price %> <span class="text-gray-500 font-normal">/night</span>
+                    </p>
+                </div>
+                <div class="pt-4">
+                    <h3 class="text-lg font-bold text-gray-900">Rating</h3>
+                    <p class="flex items-center gap-1 text-gray-700 mt-1">
+                        <span class="text-yellow-400">★</span> <%= home.rating %> / 5
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+            <form action="/bookings" method="POST">
+    <input type="hidden" name="homeId" value="<%= home._id %>">
+
+    <label for="checkIn">Check-in date</label>
+    <input type="date" id="checkIn" name="checkIn" required>
+
+    <label for="checkOut">Check-out date</label>
+    <input type="date" id="checkOut" name="checkOut" required>
+
+    <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition">
+        Book Now
+    </button>
+</form>
+           <form action="/add-to-favourite" method="POST">
+    <input type="hidden" name="id" value="<%= home._id %>">
+    <button type="submit" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-6 py-3 rounded-lg transition">
+        ♥ Add to Favourite
+    </button>
+</form>
+        </div>
+    </div>
+</main>
+<%- include('../partials/footer')%>

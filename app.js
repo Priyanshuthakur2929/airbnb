@@ -1,30 +1,33 @@
 const express = require('express');
+const userRouter = require("./routes/userRouter");
+const { hostRouter } = require("./routes/hostRouter");
+const rootDir = require("./utils/pathUtil");
 const path = require('path');
-const hostRouter = require('./hostRouter');
-const userRouter = require('./userRouter');
+const errorController = require("./controllers/errors");
+const { mongoConnect } = require('./utils/databaseUtil');
 
 const app = express();
-const port = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.set('view engine', 'ejs');
+app.set('views', path.join(rootDir, 'views'));
+app.use(express.urlencoded());
+const session = require('express-session');
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.use(session({
+    secret: 'replace-this-with-a-long-random-string',
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(userRouter);
+app.use("/host", hostRouter);
+app.use(express.static('public'));
+app.use(express.static(path.join(rootDir, 'public')));
 
-app.post('/contact', (req, res) => {
-  const name = req.body.name || 'there';
-  res.send(`<h2>Thanks, ${name}! Your form was received.</h2>`);
-});
+app.use(errorController.PageNotFound);
 
-app.use('/host', hostRouter);
-app.use('/user', userRouter);
-
-app.use((req, res) => {
-  res.status(404).send('<h1>404 Page Not Found</h1>');
-});
-
-app.listen(port, () => {
-  console.log(`Server is listening on http://localhost:${port}`);
+const PORT = 5001;
+mongoConnect().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server running on address http://localhost:${PORT}`);
+    });
 });

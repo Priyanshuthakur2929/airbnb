@@ -1,0 +1,28 @@
+<%- include('../partials/header')%>
+<%- include('../partials/navbar')%>
+
+<main class="container mx-auto mt-20 max-w-md bg-amber-50 shadow-lg rounded-2xl p-8 text-center">
+    <h2 class="text-2xl font-bold text-red-600 mb-6">Sign-up</h2>
+    <form action="/sign-up" method="POST" class="flex flex-col gap-4">
+        <input type="text" name="name" placeholder="Enter your Name"
+               class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"/>
+
+        <input type="email" name="email" placeholder="Enter your mail id"
+               class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"/>
+
+        <input type="password" name="password" placeholder="Enter your Password"
+               class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"/>
+
+        <label class="flex items-center gap-2 text-sm text-gray-600">
+            <input type="radio" name="rememberme" value="yes"/>
+            Remember me
+        </label>
+
+        <button type="submit"
+                class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg transition">
+            Sign Up
+        </button>
+    </form>
+</main>
+
+<%- include('../partials/footer')%>

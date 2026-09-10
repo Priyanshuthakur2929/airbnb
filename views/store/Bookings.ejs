@@ -1,0 +1,45 @@
+<%- include('../partials/header')%>
+<%- include('../partials/navbar')%>
+
+<header class="bg-white shadow-sm py-6 text-center">
+    <h1 class="text-3xl font-bold text-red-600">Your Bookings</h1>
+    <h3 class="text-lg text-gray-500 mt-1">Homes you've booked</h3>
+</header>
+
+<main class="max-w-5xl mx-auto mt-8 px-4">
+    <% if (bookings.length > 0) { %>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            <% bookings.forEach(booking => { %>
+                <% const home = booking.homeId; %>
+                <% if (home) { %>
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition">
+                    <img src="<%= home.imageURL %>" alt="<%= home.houseName %>"
+                         onerror="this.onerror=null; this.src='/default-home.jpg'"
+                         class="w-full aspect-[3/4] object-cover"/>
+
+                    <div class="p-4">
+                        <p class="font-semibold text-gray-900 text-lg"><%= home.houseName %></p>
+                        <p class="text-sm text-gray-500 mt-1"><%= home.location %></p>
+                        <div class="flex justify-between items-center mt-3">
+                            <p class="font-bold text-gray-900">
+                                $<%= home.price %> <span class="font-normal text-gray-500 text-sm">/ night</span>
+                            </p>
+                            <p class="flex items-center gap-1 text-sm font-semibold text-gray-800">
+                                <span class="text-yellow-400">★</span> <%= home.rating %>
+                            </p>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
+                            <p><span class="font-medium text-gray-800">Check-in:</span> <%= booking.checkIn ? booking.checkIn.toDateString() : 'N/A' %></p>
+                            <p><span class="font-medium text-gray-800">Check-out:</span> <%= booking.checkOut ? booking.checkOut.toDateString() : 'N/A' %></p>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <p class="text-gray-400 text-center py-4">No bookings yet.</p>
+    <% } %>
+</main>
+
+<%- include('../partials/footer')%>

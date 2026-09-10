@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>airbnb Home</title>
+    <link rel="stylesheet" href="/output.css"/>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-white shadow-sm py-6 text-center">
+        <h1 class="text-3xl font-bold text-red-600">Welcome to Airbnb</h1>
+        <h3 class="text-lg text-gray-500 mt-1">Find your perfect stay</h3>
+    </header>
+
+    <main class="max-w-5xl mx-auto mt-8 px-4">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-orange-600 font-bold text-2xl">Registered Homes</h2>
+            <a href="/host/add-home"
+               class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition">
+                Add Home
+            </a>
+        </div>
+
+        <% if (homeRegistered.length > 0) { %>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                <% homeRegistered.forEach(home => { %>
+    <div class="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition">
+        <img src="<%= home.imageURL %>" alt="<%= home.houseName %>"
+             onerror="this.onerror=null; this.src='/default-home.jpg'"
+             class="w-full aspect-[3/4] object-cover"/>
+        <div class="p-4">
+            <p class="font-semibold text-gray-900 text-lg"><%= home.houseName %></p>
+            <p class="text-sm text-gray-500 mt-1"><%= home.location %></p>
+            <div class="flex justify-between items-center mt-3">
+                <p class="font-bold text-gray-900">
+                    $<%= home.price %> <span class="font-normal text-gray-500 text-sm">/ night</span>
+                </p>
+                <p class="flex items-center gap-1 text-sm font-semibold text-gray-800">
+                    <span class="text-yellow-400">★</span> <%= home.rating %>
+                </p>
+            </div>
+            <button class="bg-red-500 hover:bg-red-700 radius-20px text-black font-semibold px-4 py-2 rounded-lg transition">
+                Book
+            </button>
+        </div>
+    </div>
+<% }) %>
+            </div>
+        <% } else { %>
+            <p class="text-gray-400 text-center py-4">No homes registered yet.</p>
+        <% } %>
+    </main>
+</body>
+</html>
