@@ -7,9 +7,11 @@
 </header>
 
 <main class="max-w-5xl mx-auto mt-8 px-4">
-    <% if (homeRegistered.length > 0) { %>
+    <% if (bookings.length > 0) { %>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-            <% homeRegistered.forEach(home => { %>
+            <% bookings.forEach(booking => { %>
+                <% const home = booking.homeId; %>
+                <% if (home) { %>
                 <div class="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition">
                     <img src="<%= home.imageURL %>" alt="<%= home.houseName %>"
                          onerror="this.onerror=null; this.src='/default-home.jpg'"
@@ -26,8 +28,13 @@
                                 <span class="text-yellow-400">★</span> <%= home.rating %>
                             </p>
                         </div>
+                        <div class="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
+                            <p><span class="font-medium text-gray-800">Check-in:</span> <%= booking.checkIn ? booking.checkIn.toDateString() : 'N/A' %></p>
+                            <p><span class="font-medium text-gray-800">Check-out:</span> <%= booking.checkOut ? booking.checkOut.toDateString() : 'N/A' %></p>
+                        </div>
                     </div>
                 </div>
+                <% } %>
             <% }) %>
         </div>
     <% } else { %>

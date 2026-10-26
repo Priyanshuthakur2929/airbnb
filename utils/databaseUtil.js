@@ -1,33 +1,23 @@
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
 
-let db;
-let dbPromise;
+let connectionPromise;
 
 const mongoConnect = () => {
-    if (!process.env.MONGODB_URI) {
+    const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+    if (!uri) {
         return Promise.reject(new Error('MONGODB_URI environment variable is required'));
     }
 
-    if (!dbPromise) {
-        dbPromise = MongoClient.connect(process.env.MONGODB_URI)
-            .then(client => {
-                db = client.db('airbnb');
-                return db;
-            })
+    if (!connectionPromise) {
+        connectionPromise = mongoose.connect(uri)
+            .then(() => mongoose.connection)
             .catch(error => {
-                dbPromise = null;
+                connectionPromise = null;
                 throw error;
             });
     }
 
-    return dbPromise;
+    return connectionPromise;
 };
 
-const getDb = () => {
-    if (!db) {
-        throw new Error('No database connection. Call mongoConnect first.');
-    }
-    return db;
-};
-
-module.exports = { mongoConnect, getDb };
+module.exports = { mongoConnect };

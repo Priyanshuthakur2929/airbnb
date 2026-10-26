@@ -1,69 +1,94 @@
+const path = require('path');
 const express = require('express');
 const userRouter = express.Router();
 const Favourite = require('../models/favourite');
 const Booking = require('../models/booking');
+const rootDir = require('../utils/pathUtil');
 const Home = require('../models/home');
+const homeController = require('../controllers/home');
+const authController = require('../controllers/auth');
+const isAuth = require('../middleware/isAuth');
 
-userRouter.get('/', async (req, res) => {
-  const homeRegistered = await Home.fetchAll();
-  res.render('store/homelist', { homeRegistered });
-});
+userRouter.get('/', homeController.getWelcomePage);
 
 userRouter.get('/homelist', async (req, res) => {
-  const homeRegistered = await Home.fetchAll();
+  const homeRegistered = await Home.find();
   res.render('store/homelist', { homeRegistered });
 });
 
-userRouter.get('/favourite-list', async (req, res, next) => {
+userRouter.post('/add-to-favourite', isAuth, async (req, res) => {
   try {
-    const favouriteNames = await Favourite.getFavourite();
-    const allHomes = await Home.fetchAll();
-    const favouriteHomes = allHomes.filter(home => favouriteNames.includes(home.houseName));
-    res.render('store/favourite-list', { homeRegistered: favouriteHomes });
-  } catch (error) {
-    next(error);
-  }
-});
+    const homeId = req.body.id;
+    const userId = req.session.user.id;
 
-userRouter.post('/favourite-list/remove', async (req, res, next) => {
-  try {
-    await Favourite.removeFromFavourite(req.body.name);
+    const exists = await Favourite.findOne({ userId, homeId });
+    if (!exists) {
+      await Favourite.create({ userId, homeId });
+    }
     res.redirect('/favourite-list');
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error adding to favourites');
   }
 });
 
-userRouter.get('/login', (req, res) => {
-  res.render('store/login');
-});
-
-userRouter.get('/sign-up', (req, res) => {
-  res.render('store/sign-up');
-});
-
-userRouter.post('/sign-up', (req, res) => {
-  console.log(req.body);
-  res.redirect('/login');
-});
-
-userRouter.get('/bookings', async (req, res, next) => {
+userRouter.get('/favourite-list', isAuth, async (req, res) => {
   try {
-    const bookingIds = await Booking.getBookings();
-    const allHomes = await Home.fetchAll();
-    const bookedHomes = allHomes.filter(home => bookingIds.includes(String(home._id)));
-    res.render('store/Bookings', { homeRegistered: bookedHomes });
-  } catch (error) {
-    next(error);
+    const userId = req.session.user.id;
+    const favourites = await Favourite.find({ userId }).populate('homeId');
+    const homeRegistered = favourites.map(fav => fav.homeId).filter(Boolean);
+    res.render('store/favourite-list', { homeRegistered });
+  } catch (err) {
+    console.error('FAVOURITE LIST ERROR:', err);
+    res.status(500).send('Error fetching favourites');
   }
 });
 
-userRouter.post('/bookings', async (req, res, next) => {
+userRouter.post('/favourite-list/remove', isAuth, async (req, res) => {
   try {
-    await Booking.addBooking(req.body.homeId);
+    const homeId = req.body.id;
+    const userId = req.session.user.id;
+    await Favourite.findOneAndDelete({ userId, homeId });
+    res.redirect('/favourite-list');
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error removing favourite');
+  }
+});
+
+userRouter.get('/login', authController.getLogin);
+userRouter.post('/login', authController.postLogin);
+
+userRouter.get('/sign-up', authController.getSignup);
+userRouter.post('/sign-up', authController.postSignup);
+
+userRouter.post('/logout', authController.postLogout);
+
+userRouter.post('/bookings', isAuth, async (req, res) => {
+  try {
+    const { homeId, checkIn, checkOut } = req.body;
+    const userId = req.session.user.id;
+
+    if (new Date(checkOut) <= new Date(checkIn)) {
+      return res.status(400).send('Check-out date must be after check-in date');
+    }
+
+    await Booking.create({ userId, homeId, checkIn, checkOut });
     res.redirect('/bookings');
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error booking home');
+  }
+});
+
+userRouter.get('/bookings', isAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const bookings = await Booking.find({ userId }).populate('homeId');
+    res.render('store/Bookings', { bookings });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error fetching bookings');
   }
 });
 

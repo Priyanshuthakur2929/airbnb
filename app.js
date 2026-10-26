@@ -1,18 +1,26 @@
 require('dotenv').config();
 
 const express = require('express');
-const userRouter = require("./routes/userRouter");
-const { hostRouter } = require("./routes/hostRouter");
-const rootDir = require("./utils/pathUtil");
+const session = require('express-session');
+const mongoose = require('mongoose');
+const { MongoStore } = require('connect-mongo');
+const userRouter = require('./routes/userRouter');
+const { hostRouter } = require('./routes/hostRouter');
+const rootDir = require('./utils/pathUtil');
 const path = require('path');
-const errorController = require("./controllers/errors");
+const errorController = require('./controllers/errors');
 const { mongoConnect } = require('./utils/databaseUtil');
- 
+
+if (!process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET environment variable is required');
+}
+
 const app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(rootDir, 'views'));
-app.use(express.urlencoded());
+app.set('trust proxy', 1);
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(rootDir, 'public')));
 
 app.use(async (req, res, next) => {
@@ -24,8 +32,25 @@ app.use(async (req, res, next) => {
     }
 });
 
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    store: MongoStore.create({
+        clientPromise: mongoConnect().then(() => mongoose.connection.getClient()),
+        dbName: 'airbnb',
+        collectionName: 'sessions'
+    }),
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 14 * 24 * 60 * 60 * 1000
+    }
+}));
+
 app.use(userRouter);
-app.use("/host", hostRouter);
+app.use('/host', hostRouter);
 app.use(errorController.PageNotFound);
 
 if (require.main === module) {
@@ -37,7 +62,7 @@ if (require.main === module) {
             });
         })
         .catch(error => {
-            console.error('Unable to start the server. Check your MONGODB_URI in .env.', error);
+            console.error('Unable to start the server. Check MONGODB_URI and database access.', error);
             process.exitCode = 1;
         });
 }

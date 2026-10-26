@@ -1,16 +1,25 @@
-const { getDb } = require('../utils/databaseUtil');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-module.exports = class Booking {
-
-    static addBooking(homeId) {
-        return getDb().collection('bookings').insertOne({ homeId: String(homeId) });
+const bookingSchema = new Schema({
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    homeId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Home',
+        required: true
+    },
+    checkIn: {
+        type: Date,
+        required: true
+    },
+    checkOut: {
+        type: Date,
+        required: true
     }
+});
 
-    static async getBookings() {
-        const bookings = await getDb()
-            .collection('bookings')
-            .find({}, { projection: { homeId: 1, _id: 0 } })
-            .toArray();
-        return bookings.map(booking => booking.homeId);
-    }
-};
+module.exports = mongoose.model('Booking', bookingSchema);

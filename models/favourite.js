@@ -1,24 +1,19 @@
-const { getDb } = require('../utils/databaseUtil');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-module.exports = class Favourite {
-
-    static addToFavourite(name) {
-        return getDb().collection('favourites').updateOne(
-            { name },
-            { $setOnInsert: { name } },
-            { upsert: true }
-        );
+const favouriteSchema = new Schema({
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    homeId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Home',
+        required: true
     }
+});
 
-    static async getFavourite() {
-        const favourites = await getDb()
-            .collection('favourites')
-            .find({}, { projection: { name: 1, _id: 0 } })
-            .toArray();
-        return favourites.map(favourite => favourite.name);
-    }
+favouriteSchema.index({ userId: 1, homeId: 1 }, { unique: true });
 
-    static removeFromFavourite(name) {
-        return getDb().collection('favourites').deleteOne({ name });
-    }
-};
+module.exports = mongoose.model('Favourite', favouriteSchema);

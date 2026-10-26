@@ -1,5 +1,9 @@
-const Home = require('../models/home');  //const Home = require('../models/home');
-const Favourite = require('../models/favourite');  //Favourite → model for marking homes as favourites
+const Home = require('../models/home');
+const Favourite = require('../models/favourite');
+
+exports.getWelcomePage = (req, res, next) => {
+    res.render('store/welcome');
+};
 
 exports.getAddHome = (req, res, next) => {
     res.render('host/AddHome');
@@ -7,7 +11,14 @@ exports.getAddHome = (req, res, next) => {
 
 exports.postAddHome = async (req, res, next) => {
     const { name, location, price, image, rating } = req.body;
-    const newHome = new Home(name, '', image, price, location, rating);
+    const newHome = new Home({
+        houseName: name,
+        description: "Beautiful home available for rent",
+        imageURL: image,
+        price,
+        location,
+        rating
+    });
     try {
         await newHome.save();
         res.render('host/homeRegistered', { home: newHome });
@@ -19,7 +30,7 @@ exports.postAddHome = async (req, res, next) => {
 
 exports.getHostHomeList = async (req, res, next) => {
     try {
-        const homeRegistered = await Home.fetchAll();
+        const homeRegistered = await Home.find();
         res.render('host/hosthomelist', { homeRegistered });
     } catch (err) {
         console.log(err);
@@ -29,10 +40,40 @@ exports.getHostHomeList = async (req, res, next) => {
 
 exports.postAddToFavourite = async (req, res, next) => {
     try {
-        await Favourite.addToFavourite(req.body.id);
+        const homeId = req.body.id;
+
+        const exists = await Favourite.findOne({ homeId });
+        if (exists) {
+            console.log("Home is already marked in favourites");
+            return res.redirect("/favourite-list");
+        }
+
+        await Favourite.create({ homeId });
         res.redirect("/favourite-list");
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('Error adding to favourites');
+    }
+};
+
+exports.postRemoveFromFavourite = async (req, res, next) => {
+    try {
+        const homeId = req.body.id;
+        await Favourite.findOneAndDelete({ homeId });
+        res.redirect("/favourite-list");
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('Error removing favourite');
+    }
+};
+
+exports.getFavouriteList = async (req, res, next) => {
+    try {
+        const favourites = await Favourite.find().populate('homeId');
+        res.render('favourite-list', { favourites });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('Error fetching favourites');
     }
 };
 
@@ -52,7 +93,7 @@ exports.postEditHome = async (req, res, next) => {
     const homeId = req.params.homeId;
     const { name, location, price, image, rating } = req.body;
     try {
-        await Home.updateById(homeId, {
+        await Home.findByIdAndUpdate(homeId, {
             houseName: name,
             location,
             price,
@@ -69,7 +110,7 @@ exports.postEditHome = async (req, res, next) => {
 exports.postDeleteHome = async (req, res, next) => {
     const homeId = req.params.homeId;
     try {
-        await Home.deleteById(homeId);
+        await Home.findByIdAndDelete(homeId);
         res.redirect('/host/hosthomelist');
     } catch (err) {
         console.log(err);

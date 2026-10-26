@@ -25,7 +25,7 @@
                 <div class="py-4">
                     <h3 class="text-lg font-bold text-gray-900">Price</h3>
                     <p class="text-green-600 font-semibold mt-1">
-                        $<%= home.price %> <span class="text-gray-500 font-normal">/ night</span>
+              $<%= home.price %> <span class="text-gray-500 font-normal">/night</span>
                     </p>
                 </div>
                 <div class="pt-4">
@@ -38,17 +38,24 @@
         </div>
         <div class="flex gap-3 mt-6">
             <form action="/bookings" method="POST">
-                <input type="hidden" name="homeId" value="<%= home._id %>">
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition">
-                    Book Now
-                </button>
-            </form>
-            <form action="/host/favourite-list" method="POST">
-                <input type="hidden" name="id" value="<%= home.houseName %>">
-                <button type="submit" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-6 py-3 rounded-lg transition">
-                    ♥ Add to Favourite
-                </button>
-            </form>
+    <input type="hidden" name="homeId" value="<%= home._id %>">
+
+    <label for="checkIn">Check-in date</label>
+    <input type="date" id="checkIn" name="checkIn" required>
+
+    <label for="checkOut">Check-out date</label>
+    <input type="date" id="checkOut" name="checkOut" required>
+
+    <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition">
+        Book Now
+    </button>
+</form>
+           <form action="/add-to-favourite" method="POST">
+    <input type="hidden" name="id" value="<%= home._id %>">
+    <button type="submit" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-6 py-3 rounded-lg transition">
+        ♥ Add to Favourite
+    </button>
+</form>
         </div>
     </div>
 </main>
