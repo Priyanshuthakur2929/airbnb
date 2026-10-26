@@ -1,0 +1,9 @@
+h1.text-red-500{
+    color : red !important
+}
+form{
+    border-color: chocolate;
+    border-width: 2px;
+    border-style: solid;
+    color: rgb(188, 47, 47);
+}
