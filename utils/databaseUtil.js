@@ -9,7 +9,7 @@ const mongoConnect = () => {
     }
 
     if (!connectionPromise) {
-        connectionPromise = mongoose.connect(uri)
+        connectionPromise = mongoose.connect(uri, { dbName: 'airbnb' })
             .then(() => mongoose.connection)
             .catch(error => {
                 connectionPromise = null;

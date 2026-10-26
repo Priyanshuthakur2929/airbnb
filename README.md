@@ -6,6 +6,8 @@
 2. Add `MONGODB_URI` and `SESSION_SECRET` to the Vercel project's Production environment variables (and Preview if needed). Do not commit either secret or put it in `vercel.json`.
 3. Deploy. The Express app is exposed through `api/index.js`, and Vercel serves the EJS templates and public assets with the function.
 
+The app connects to the `airbnb` MongoDB database. The Atlas URI can omit the database name because the app selects it explicitly.
+
 Authentication sessions are stored in MongoDB so they persist across serverless invocations.
 
 ## Run locally
